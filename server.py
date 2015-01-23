@@ -1,4 +1,5 @@
 from flask import Flask, session, redirect, url_for, escape, request, render_template
+from flask.ext.sqlalchemy import SQLAlchemy
 import os
 from dropbox.client import DropboxOAuth2Flow, DropboxClient
 
