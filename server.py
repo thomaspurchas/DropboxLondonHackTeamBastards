@@ -63,6 +63,11 @@ def dropbox_auth_finish():
     return render_template('dropbox.html', access_token=access_token, user_id=user_id, url_state=url_state)
 
 
+@app.route('/chosen-one/<path:link>')
+def getLink(link):
+    # show the post with the given id, the id is an integer
+    return link
+
 
 @app.route('/')
 def index():
@@ -76,6 +81,11 @@ def index():
 
 
     return "Hello!"
+'''
+@app.route('auth'):
+	#Should be 301 Redirect to Dropbox app authentication		
+	return "auth"
+'''
 
 if __name__ == "__main__":
     app.run()
