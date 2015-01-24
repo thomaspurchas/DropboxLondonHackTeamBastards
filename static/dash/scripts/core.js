@@ -40,7 +40,7 @@ var __db = (function(){
 
 				if(firstInstance === true){
 					firstInstance = false;
-					getStatus();
+					// getStatus();
 				}
 				
 
@@ -146,6 +146,8 @@ var __db = (function(){
 			addEvents();
 
 			startGeo();
+
+			getStatus();
 
 			jQuery.ajax({
 				type : "GET",
