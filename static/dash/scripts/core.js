@@ -1,6 +1,9 @@
 var __db = (function(){
 
-	var client = undefined;
+	var client = undefined,
+		firstInstance = true,
+		people = [];
+
 
 	function startGeo(){
 
@@ -33,6 +36,8 @@ var __db = (function(){
 
 				console.log(res);
 				console.log("Position recognised");
+
+				getStatus();
 
 			}, error : function(err){
 				//We can't connect for some reason. Let's assume there's no signal from the device
@@ -78,6 +83,29 @@ var __db = (function(){
 
 					    console.log(datastore);
 
+					    people = [];
+
+					    var teamTable = datastore.getTable('team');
+					    var records = teamTable.query();
+
+					    for(var f = 0; f < records.length; f += 1){
+
+					    	var name = records[0].get('display_name'),
+					    		id  = records[0].get('user_id'),
+					    		lat = records[0].get('lat'),
+					    		lon = records[0].get('lon');
+
+					    	people.push({
+					    		display_name : name,
+					    		user_id : id,
+					    		latitude : lat,
+					    		longitude : lon
+					    	});
+
+					    }
+
+					    console.log(people);
+
 					});
 
 				}, error : function(err){
@@ -110,8 +138,8 @@ var __db = (function(){
 					client = new Dropbox.Client({key: "alb0kf2mp7ca1np", token : res});
 
 					if(client.isAuthenticated() === true){
-						getStatus();
-					}
+						//getStatus();
+						startGeo();					}
 
 				}, error : function(err){
 
