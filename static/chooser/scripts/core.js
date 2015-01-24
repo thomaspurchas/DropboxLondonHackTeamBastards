@@ -18,6 +18,8 @@ var __db = (function(){
 
 		    			console.log(res);
 
+		    			window.location = "/static/dash/index.html"
+
 		    		},
 		    		error : function(err){
 
