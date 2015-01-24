@@ -124,7 +124,7 @@ def access_token():
 
 
 @app.route('/datestore_id/')
-def datastore_id:
+def datastore_id():
     return get_game_ds().get_id()
 
 @app.route('/start/')
