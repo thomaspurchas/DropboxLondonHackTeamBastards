@@ -93,6 +93,24 @@ var __db = (function(){
 
 	}
 
+	function populatePeople(){
+
+		var list = document.getElementById('people')
+
+		list.innerHTML = "";
+
+		for(var h = 0; h < people.length; h += 1){
+
+
+			list.innerHTML += "<li>" + people[h].display_name + "</li>";
+
+
+		}
+
+		
+
+	}
+
 	function handleDataStore(db){
 
 		if(manager === undefined){
@@ -127,8 +145,13 @@ var __db = (function(){
 
 		    console.log(people);
 
+		    populatePeople();
+
 		    datastore.recordsChanged.addListener(function (event) {
-			    console.log('records changed:', event.affectedRecordsForTable('team'));
+			    //console.log('records changed:', event.affectedRecordsForTable('team'));
+				
+			    populatePeople();
+
 			});
 
 		});
