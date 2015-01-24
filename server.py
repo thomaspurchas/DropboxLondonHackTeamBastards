@@ -115,6 +115,8 @@ def reset_game():
     for person in get_team_table().query():
         person.delete_record()
 
+    get_game_ds().commit()
+
 def run_game():
     set_game_state(GAME_RUNNING)
 
