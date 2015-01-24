@@ -1,5 +1,7 @@
 var __db = (function(){
 
+	var client = undefined;
+
 	function startGeo(){
 
 		navigator.geolocation.watchPosition(handleLocation, function(err){
@@ -52,6 +54,18 @@ var __db = (function(){
 
 	}
 
+	function getStatus(){
+
+		if(client === undefined){
+			return false;
+		} else {
+
+			//
+
+		}
+
+	}
+
 	function init(){
 		
 		if("geolocation" in navigator){
@@ -60,7 +74,26 @@ var __db = (function(){
 
 			addEvents();
 
-			//startGeo();
+			startGeo();
+
+			jQuery.ajax({
+				type : "GET",
+				url : "/access_token/",
+				success : function(res){
+
+					console.log(res);
+					client = new Dropbox.Client({key: "alb0kf2mp7ca1np", token : res});
+
+					if(client.isAuthenticated() === true){
+						getStatus();
+					}
+
+				}, error : function(err){
+
+					console.error(err);
+
+				}
+			});
 
 		} else { 
 
