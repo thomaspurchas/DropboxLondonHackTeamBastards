@@ -1,4 +1,4 @@
-from flask import Flask, session, redirect, url_for, escape, request, render_template
+from flask import Flask, session, redirect, url_for, escape, request, render_template, g as fglobal
 
 import os
 import re
@@ -33,6 +33,10 @@ def get_dropbox_client():
 
 
 def get_game_ds():
+    game_ds = getattr(fglobal, '_game_ds', None)
+    if game_ds:
+        return game_ds
+
     GOD_DS.load_deltas()
     main_table = GOD_DS.get_table('main')
     records = main_table.query()
@@ -53,7 +57,18 @@ def get_game_ds():
         game_ds_id = record.get('game_ds_id')
         game_ds = DatastoreManager(get_dropbox_client()).open_datastore(game_ds_id)
 
+    fglobal._game_ds = game_ds
     return game_ds
+
+
+def commit_game():
+    get_game_ds().commit()
+
+
+def get_team_table():
+    ds = get_game_ds()
+
+    return ds.get_table('team')
 
 
 def steal_file(path):
@@ -130,9 +145,30 @@ def access_token():
 def datastore_id():
     return get_game_ds().get_id()
 
+
 @app.route('/start/')
 def start_game():
     pass
+
+
+@app.route('/position/')
+def set_user_position():
+    lat = request.args.get('lat')
+    lon = request.args.get('lon')
+
+    get_dropbox_client()
+    team_table = get_team_table()
+
+    records = team_table.query(user_id = session['user_id'])
+    if len(records) > 1:
+        for record in records:
+            record.delete_record()
+
+    team_table.insert(user_id=session['user_id'], display_name=session['display_name'], lat=lat, lon=lon)
+
+    get_game_ds().commit()
+
+    return 'Wooo!'
 
 
 @app.route('/')
