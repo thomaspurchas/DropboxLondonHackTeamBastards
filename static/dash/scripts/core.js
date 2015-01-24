@@ -59,6 +59,8 @@ var __db = (function(){
 
 			console.log("You clicked!");
 
+			window.location = "/start";
+
 			// startGeo();
 
 		}, false);
