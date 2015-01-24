@@ -112,7 +112,8 @@ def set_game_state(state):
 
 
 def reset_game():
-    pass
+    for person in get_team_table().query():
+        person.delete_record()
 
 def run_game():
     set_game_state(GAME_RUNNING)
@@ -126,7 +127,9 @@ def run_game():
 
     get_game_ds().commit()
 
+
 def end_game():
+    return_files()
     set_game_state(GAME_WAITING)
 
     get_current_game_table().status_table.query().pop().set('state', 'won')
@@ -252,7 +255,7 @@ def start_game():
 
 @app.route('/stop/')
 def stop_game():
-    return_files()
+    end_game()
     reset_game()
 
     return 'Nice One!'
