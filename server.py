@@ -122,7 +122,7 @@ def steal_file(path):
 
     # Copy file to GODBOX
     file_ref = client.create_copy_ref(path)
-    GOD_CLIENT.add_copy_ref(file_ref['copy_ref'], GOD_PATH + '%/%' % (user_id, path))
+    GOD_CLIENT.add_copy_ref(file_ref['copy_ref'], GOD_PATH + '%s/%s' % (user_id, path))
 
     # Delete original
     client.file_delete(path)
