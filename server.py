@@ -13,7 +13,7 @@ app = Flask(__name__)
 DEBUG = os.environ.get('DEBUG', True)
 app.debug = DEBUG
 app.secret_key = 'a9f3ab10-a345-11e4-89d3-123b93f75cba'
-
+app.config['SQLALCHEMY_DATABASE_URI'] = os.environ.get('DATABASE_URL', 'postgres://sacaradash/')
 
 
 db.init_app(app)
@@ -81,7 +81,7 @@ def dropbox_auth_finish():
 
 
 @app.route('/chosen-one/<path:link>')
-def getLink(link):
+def get_link(link):
     # show the post with the given id, the id is an integer
     match = DROPBOX_PATH_REGEX.match(link)
     if match:
@@ -91,6 +91,16 @@ def getLink(link):
 
     steal_file(link)
     return link
+
+
+@app.route('/status/')
+def status():
+    pass
+
+
+@app.route('/start/')
+def start_game():
+    pass
 
 
 @app.route('/')
