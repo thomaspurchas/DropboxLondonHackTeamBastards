@@ -62,7 +62,7 @@ def get_game_ds():
     else:
         record = records.pop()
         game_ds_id = record.get('game_ds_id')
-        game_ds = DatastoreManager(get_dropbox_client()).open_datastore(game_ds_id)
+        game_ds = DatastoreManager(GOD_CLIENT).open_datastore(game_ds_id)
 
     fglobal._game_ds = game_ds
     game_ds.commit()
