@@ -139,7 +139,7 @@ def end_game():
     get_game_ds().commit()
 
 
-def dropbox_walk_path(path, client=None):
+def dropbox_walk_path(path, client=None, folders=False):
     if not client:
         client = get_dropbox_client()
     items = client.metadata(path)['contents']
@@ -148,6 +148,8 @@ def dropbox_walk_path(path, client=None):
     for item in items:
         if item['is_dir']:
             file_paths.extend(dropbox_walk_path(item['path'], client))
+            if folders:
+                file_paths.append(item['path'])
         else:
             file_paths.append(item['path'])
 
@@ -184,6 +186,9 @@ def return_files():
 
     for rfile in dropbox_walk_path(GOD_PATH, GOD_CLIENT):
         return_file(rfile)
+
+    for folder in dropbox_walk_path(GOD_PATH, GOD_CLIENT, True):
+        GOD_CLIENT.file_delete(folder)
 
 
 def get_dropbox_auth_flow():
