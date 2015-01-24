@@ -3,6 +3,7 @@ from flask import Flask, session, redirect, url_for, escape, request, render_tem
 from models import db, User
 
 import os
+import re
 
 from dropbox.client import DropboxOAuth2Flow, DropboxClient
 from dropbox.rest import ErrorResponse
@@ -19,6 +20,7 @@ db.init_app(app)
 
 DROPBOX_APP_KEY = 'alb0kf2mp7ca1np'
 DROPBOX_APP_SECRET = '1d06iyf5ixv9y54'
+DROPBOX_PATH_REGEX = re.compile('.*?view/.*?/(.*)')
 
 
 def get_dropbox_auth_flow():
@@ -66,6 +68,12 @@ def dropbox_auth_finish():
 @app.route('/chosen-one/<path:link>')
 def getLink(link):
     # show the post with the given id, the id is an integer
+    match = DROPBOX_PATH_REGEX.match(link)
+    if match:
+        link = match.group(1)
+    else:
+        return render_template('400.html', 400)
+
     return link
 
 
