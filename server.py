@@ -38,7 +38,13 @@ def get_game_ds():
     records = main_table.query()
 
     if len(records) < 1:
+        # Create ds
         game_ds = GOD_DS_MAN.create_datastore()
+
+        # Make it shared and viewable to the public
+        game_ds.set_role(Datastore.PUBLIC, Datastore.EDITOR)
+
+        # Store the id
         main_table.insert(game_ds_id=game_ds.get_id())
     else:
         record = records.pop()
@@ -46,7 +52,6 @@ def get_game_ds():
         game_ds = DatastoreManager(get_dropbox_client()).open_datastore(game_ds_id)
 
     return game_ds
-
 
 
 def steal_file(path):
