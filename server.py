@@ -142,7 +142,7 @@ def dropbox_walk_path(path, client=None):
     file_paths = []
     for item in items:
         if item['is_dir']:
-            file_paths.extend(dropbox_walk_path(item['path']))
+            file_paths.extend(dropbox_walk_path(item['path'], client))
         else:
             file_paths.append(item['path'])
 
