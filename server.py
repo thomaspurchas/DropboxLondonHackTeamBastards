@@ -99,9 +99,9 @@ def get_link(link):
     return link
 
 
-@app.route('/status/')
+@app.route('/access_token/')
 def status():
-    pass
+    return session['access_token']
 
 
 @app.route('/start/')
