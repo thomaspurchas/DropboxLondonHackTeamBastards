@@ -24,4 +24,31 @@ body{
 	background-repeat: repeat-y;
 	width:100%;
 	height:100%;
+	color: rgba(0,0,0,.5);
+}
+
+header{
+	text-align: center;
+	background: #e67e22;
+	color: white;
+	padding: 16px 0;
+	font-weight: 800;
+}
+
+#container{
+	width: 400px;
+	text-align: center;
+	position: relative;
+	margin-left: auto;
+	margin-right: auto;
+	margin-top: 50px;
+	line-height: 1.4em;
+}
+
+@media all and (max-width: 400px){
+
+	#container{
+		width: 100%;
+	}
+
 }

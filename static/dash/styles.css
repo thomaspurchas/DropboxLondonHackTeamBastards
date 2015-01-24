@@ -24,4 +24,45 @@ body{
 	background-repeat: repeat-y;
 	width:100%;
 	height:100%;
+	text-align: center;
+}
+
+header{
+	text-align: center;
+	background: #e67e22;
+	color: white;
+	padding: 16px 0;
+	font-weight: 800;
+}
+
+#people{
+	text-align: center;
+	margin:0;
+	padding:0;
+}
+
+#people li{
+
+	list-style-type: none;
+	padding: 4px 0 5px;
+
+}
+
+#people li:nth-child(odd){
+	background-color: rgba(0,0,0,.1);
+}
+
+button{
+	margin-top: 25px;
+	background: none repeat scroll 0% 0% transparent;
+	border: 1px solid #E67E22;
+	border-radius: 50px;
+	padding: 4px 10px 6px;
+	color: #E67E22;
+	cursor: pointer;
+}
+
+#map{
+	height: 300px;
+	margin-top: 20px;
 }

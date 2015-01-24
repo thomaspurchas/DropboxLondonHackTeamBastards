@@ -3,7 +3,9 @@ var __db = (function(){
 	var client = undefined,
 		firstInstance = true,
 		people = [],
-		manager = undefined;
+		manager = undefined,
+		dt = undefined,
+		me = undefined;
 
 
 	function startGeo(){
@@ -25,6 +27,8 @@ var __db = (function(){
 
 		var coordinates = data.coords;
 
+
+		me = coordinates;
 		// return;
 
 		jQuery.ajax({
@@ -59,7 +63,59 @@ var __db = (function(){
 
 			console.log("You clicked!");
 
-			window.location = "/start";
+			//window.location = "/start";
+
+			jQuery.ajax({
+				type : "GET",
+				url : '/start',
+				success : function(res){
+					console.log(res);
+				}, error : function(err){
+					console.error(err);
+				}
+			})
+
+			var gameTable = dt.getTable('current_game');
+		    var records = gameTable.query();
+
+		    if(records.length > 0){
+		    	var destination = {
+			    	lat : records[0].get('lat'),
+			    	lon : records[0].get('lon')
+			    }	
+		    
+
+			    console.log(destination);
+
+			    gDest = new google.maps.LatLng(destination.lat, destination.lon);
+
+			    var map = undefined,
+			    	mapOptions = {
+			    		zoom : 14,
+			    		disableDefaultUI: false
+			    	};
+
+
+			     map = new google.maps.Map(document.getElementById('map'), mapOptions);
+			     map.setCenter(gDest);
+
+			     var marker = new google.maps.Marker({
+					position: gDest,
+					map: map,
+					title: 'Hello World!'
+				});
+
+				var image = '/static/location.png';
+				var myLatLng = new google.maps.LatLng(me.latitude, me.longitude);
+				var geoMarker = new google.maps.Marker({
+				  position: myLatLng,
+				  map: map,
+				  icon: image
+				});
+
+		    }
+
+		    console.log(people);
 
 			// startGeo();
 
@@ -127,6 +183,8 @@ var __db = (function(){
 
 		    console.log(datastore);
 
+		    dt = datastore;
+
 		    people = [];
 
 		    var teamTable = datastore.getTable('team');
@@ -174,8 +232,6 @@ var __db = (function(){
 			addEvents();
 
 			startGeo();
-
-			
 
 			jQuery.ajax({
 				type : "GET",
