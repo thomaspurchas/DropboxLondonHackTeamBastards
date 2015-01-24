@@ -18,9 +18,14 @@ DROPBOX_APP_SECRET = '1d06iyf5ixv9y54'
 DROPBOX_PATH_REGEX = re.compile('.*?view/.*?/(.*)')
 
 GOD_CLIENT = DropboxClient('qRrmAkXDDlQAAAAAAAAJTo3vU5u627YKYUwHUzTQ2t48OiJvdPHsg5dHF5HS1KyZ')
-GOD_PATH = 'DBHACK/%s/%s'
+GOD_PATH = 'DBHACK/'
 GOD_DS_MAN =  DatastoreManager(GOD_CLIENT)
 GOD_DS = GOD_DS_MAN.open_default_datastore()
+
+GAME_RUNNING = 'running'
+GAME_WAITING = 'waiting'
+
+WINNER_PATH = 'apps/sacradash/winnings'
 
 
 def get_dropbox_client():
@@ -35,6 +40,7 @@ def get_dropbox_client():
 def get_game_ds():
     game_ds = getattr(fglobal, '_game_ds', None)
     if game_ds:
+        game_ds.load_deltas()
         return game_ds
 
     GOD_DS.load_deltas()
@@ -58,6 +64,7 @@ def get_game_ds():
         game_ds = DatastoreManager(get_dropbox_client()).open_datastore(game_ds_id)
 
     fglobal._game_ds = game_ds
+    game_ds.load_deltas()
     return game_ds
 
 
@@ -71,16 +78,74 @@ def get_team_table():
     return ds.get_table('team')
 
 
+def get_game_state():
+    ds = get_game_ds()
+
+    status_table = ds.get_table('status')
+    record = status_table.query().pop()
+
+    return record.get('state')
+
+
+def set_game_state(state):
+    ds = get_game_ds()
+
+    status_table = ds.get_table('status')
+    for record in status_table.query():
+        record.delete_record()
+
+    status_table.insert(state=state)
+    ds.commit()
+
+
+def reset_game():
+    pass
+
+
+def dropbox_walk_path(path):
+    client = get_dropbox_client()
+    items = client.metadata(path)['contents']
+
+    file_paths = []
+    for item in items:
+        if item['is_dir']:
+            file_paths.extend(dropbox_walk_path(item['path']))
+        else:
+            file_paths.append(item['path'])
+
+    return file_paths
+
+
 def steal_file(path):
     client = get_dropbox_client()
-    user_id = client.account_info()['uid']
+    user_id = session['user_id']
 
     # Copy file to GODBOX
     file_ref = client.create_copy_ref(path)
-    GOD_CLIENT.add_copy_ref(file_ref['copy_ref'], GOD_PATH % (user_id, path))
+    GOD_CLIENT.add_copy_ref(file_ref['copy_ref'], GOD_PATH + '%/%' % (user_id, path))
 
     # Delete original
     client.file_delete(path)
+
+
+def return_file(path):
+    client = get_dropbox_client()
+    user_id = session['user_id']
+
+    # Copy file to GODBOX
+    file_ref = GOD_CLIENT.create_copy_ref(path)
+    client.add_copy_ref(file_ref['copy_ref'], WINNER_PATH + path)
+
+    # Delete original
+    GOD_CLIENT.file_delete(path)
+
+
+def return_files():
+    client = get_dropbox_client()
+    user_id = session['user_id']
+
+    for rfile in dropbox_walk_path(GOD_PATH):
+        return_file(rfile)
 
 
 def get_dropbox_auth_flow():
@@ -148,7 +213,13 @@ def datastore_id():
 
 @app.route('/start/')
 def start_game():
-    pass
+    set_game_state(GAME_RUNNING)
+
+
+@app.route('/stop/')
+def stop_game():
+    reset_game()
+    return_files()
 
 
 @app.route('/position/')
@@ -164,7 +235,10 @@ def set_user_position():
         for record in records:
             record.delete_record()
 
-    team_table.insert(user_id=session['user_id'], display_name=session['display_name'], lat=lat, lon=lon)
+        team_table.insert(user_id=session['user_id'], display_name=session['display_name'], lat=lat, lon=lon)
+    else:
+        if get_game_state() == GAME_WAITING:
+            team_table.insert(user_id=session['user_id'], display_name=session['display_name'], lat=lat, lon=lon)
 
     get_game_ds().commit()
 
