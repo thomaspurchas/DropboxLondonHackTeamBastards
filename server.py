@@ -40,6 +40,7 @@ def get_dropbox_client():
 def get_game_ds():
     game_ds = getattr(fglobal, '_game_ds', None)
     if game_ds:
+        game_ds.commit()
         game_ds.load_deltas()
         return game_ds
 
@@ -64,6 +65,7 @@ def get_game_ds():
         game_ds = DatastoreManager(get_dropbox_client()).open_datastore(game_ds_id)
 
     fglobal._game_ds = game_ds
+    game_ds.commit()
     game_ds.load_deltas()
     return game_ds
 
@@ -78,19 +80,30 @@ def get_team_table():
     return ds.get_table('team')
 
 
+def get_status_table():
+    ds = get_game_ds()
+
+    return ds.get_table('status')
+
+
 def get_game_state():
     ds = get_game_ds()
 
-    status_table = ds.get_table('status')
-    record = status_table.query().pop()
+    status_table = ds.get_table('state')
+    records = status_table.query()
 
+    if len(records) < 1:
+        set_game_state(GAME_WAITING)
+        record = status_table.query().pop()
+    else:
+        record = records.pop()
     return record.get('state')
 
 
 def set_game_state(state):
     ds = get_game_ds()
 
-    status_table = ds.get_table('status')
+    status_table = ds.get_table('state')
     for record in status_table.query():
         record.delete_record()
 
@@ -100,6 +113,25 @@ def set_game_state(state):
 
 def reset_game():
     pass
+
+def run_game():
+    set_game_state(GAME_RUNNING)
+
+    status_table = get_status_table()
+
+    for record in status_table.query():
+        record.delete_record()
+
+    status_table.insert(state='running', lat='51.507990', lon='-0.128049')
+
+    get_game_ds().commit()
+
+def end_game():
+    set_game_state(GAME_WAITING)
+
+    get_status_table().status_table.query().pop().set('state', 'won')
+
+    get_game_ds().commit()
 
 
 def dropbox_walk_path(path):
@@ -212,13 +244,16 @@ def datastore_id():
 
 @app.route('/start/')
 def start_game():
-    set_game_state(GAME_RUNNING)
+    run_game()
+    return 'Running'
 
 
 @app.route('/stop/')
 def stop_game():
-    reset_game()
     return_files()
+    reset_game()
+
+    return 'Nice One!'
 
 
 @app.route('/position/')
