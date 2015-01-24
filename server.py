@@ -77,7 +77,9 @@ def dropbox_auth_finish():
 
     session['access_token'] = access_token
 
-    return render_template('dropbox.html', access_token=access_token, user_id=user_id, url_state=url_state)
+    return redirect("/static/chooser/index.html")
+
+    #return render_template('dropbox.html', access_token=access_token, user_id=user_id, url_state=url_state)
 
 
 @app.route('/chosen-one/<path:link>')
