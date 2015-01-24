@@ -2,7 +2,8 @@ var __db = (function(){
 
 	var client = undefined,
 		firstInstance = true,
-		people = [];
+		people = [],
+		manager = undefined;
 
 
 	function startGeo(){
@@ -37,7 +38,11 @@ var __db = (function(){
 				console.log(res);
 				console.log("Position recognised");
 
-				getStatus();
+				if(firstInstance === true){
+					firstInstance = false;
+					// getStatus();
+				}
+				
 
 			}, error : function(err){
 				//We can't connect for some reason. Let's assume there's no signal from the device
@@ -75,38 +80,7 @@ var __db = (function(){
 				success : function(res){
 
 					console.log(res);
-
-					var datastoreManager = client.getDatastoreManager();
-					
-					datastoreManager.openDatastore(res, function (error, datastore) {
-					    // The datastore is now shared with this user.
-
-					    console.log(datastore);
-
-					    people = [];
-
-					    var teamTable = datastore.getTable('team');
-					    var records = teamTable.query();
-
-					    for(var f = 0; f < records.length; f += 1){
-
-					    	var name = records[0].get('display_name'),
-					    		id  = records[0].get('user_id'),
-					    		lat = records[0].get('lat'),
-					    		lon = records[0].get('lon');
-
-					    	people.push({
-					    		display_name : name,
-					    		user_id : id,
-					    		latitude : lat,
-					    		longitude : lon
-					    	});
-
-					    }
-
-					    console.log(people);
-
-					});
+					handleDataStore(res);
 
 				}, error : function(err){
 
@@ -119,6 +93,73 @@ var __db = (function(){
 
 	}
 
+	function populatePeople(){
+
+		var list = document.getElementById('people')
+
+		list.innerHTML = "";
+
+		for(var h = 0; h < people.length; h += 1){
+
+
+			list.innerHTML += "<li>" + people[h].display_name + "</li>";
+
+
+		}
+
+		
+
+	}
+
+	function handleDataStore(db){
+
+		if(manager === undefined){
+			manager = client.getDatastoreManager();
+		}
+		
+		manager.openDatastore(db, function (error, datastore) {
+		    // The datastore is now shared with this user.
+
+		    console.log(datastore);
+
+		    people = [];
+
+		    var teamTable = datastore.getTable('team');
+		    var records = teamTable.query();
+
+		    for(var f = 0; f < records.length; f += 1){
+
+		    	var name = records[f].get('display_name'),
+		    		id  = records[f].get('user_id'),
+		    		lat = records[f].get('lat'),
+		    		lon = records[f].get('lon');
+
+		    	people.push({
+		    		display_name : name,
+		    		user_id : id,
+		    		latitude : lat,
+		    		longitude : lon
+		    	});
+
+		    }
+
+		    console.log(people);
+
+		    populatePeople();
+
+		    datastore.recordsChanged.addListener(function (event) {
+			    //console.log('records changed:', event.affectedRecordsForTable('team'));
+				
+			    populatePeople();
+
+			});
+
+		});
+
+
+
+	}
+
 	function init(){
 		
 		if("geolocation" in navigator){
@@ -128,6 +169,8 @@ var __db = (function(){
 			addEvents();
 
 			startGeo();
+
+			getStatus();
 
 			jQuery.ajax({
 				type : "GET",
