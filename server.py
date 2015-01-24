@@ -33,6 +33,7 @@ def get_dropbox_client():
 
 
 def get_game_ds():
+    GOD_DS.load_deltas()
     main_table = GOD_DS.get_table('main')
     records = main_table.query()
 
@@ -41,10 +42,12 @@ def get_game_ds():
         game_ds = GOD_DS_MAN.create_datastore()
 
         # Make it shared and viewable to the public
-        game_ds.set_role(Datastore.PUBLIC, Datastore.EDITOR)
+        game_ds.set_role(Datastore.PUBLIC, Datastore.VIEWER)
+        game_ds.commit()
 
         # Store the id
         main_table.insert(game_ds_id=game_ds.get_id())
+        GOD_DS.commit()
     else:
         record = records.pop()
         game_ds_id = record.get('game_ds_id')
