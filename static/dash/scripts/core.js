@@ -67,6 +67,8 @@ var __db = (function(){
 
 	function getStatus(){
 
+		console.log("Got here");
+
 		if(client === undefined){
 			return false;
 		} else {
@@ -107,7 +109,7 @@ var __db = (function(){
 
 		}
 
-		
+
 
 	}
 
@@ -116,6 +118,7 @@ var __db = (function(){
 		if(manager === undefined){
 			manager = client.getDatastoreManager();
 		}
+		console.log("hit");
 		
 		manager.openDatastore(db, function (error, datastore) {
 		    // The datastore is now shared with this user.
@@ -170,7 +173,7 @@ var __db = (function(){
 
 			startGeo();
 
-			getStatus();
+			
 
 			jQuery.ajax({
 				type : "GET",
@@ -182,7 +185,9 @@ var __db = (function(){
 
 					if(client.isAuthenticated() === true){
 						//getStatus();
-						startGeo();					}
+						startGeo();					
+						getStatus();
+					}
 
 				}, error : function(err){
 
