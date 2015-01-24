@@ -77,7 +77,7 @@ def dropbox_auth_finish():
 
     session['access_token'] = access_token
 
-    return render_template('dropbox.html', access_token=access_token, user_id=user_id, url_state=url_state)
+    return redirect(url_for('index'))
 
 
 @app.route('/chosen-one/<path:link>')
@@ -114,7 +114,7 @@ def index():
         return redirect(url_for('dropbox_auth_start'))
 
 
-    return "Hello!"
+    return redirect('/static/chooser/index.html')
 '''
 @app.route('auth'):
 	#Should be 301 Redirect to Dropbox app authentication
