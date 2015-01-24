@@ -61,6 +61,21 @@ var __db = (function(){
 		} else {
 
 			//
+			console.log("Got here");
+
+			jQuery.ajax({
+				type : "GET",
+				url : '/datastore_id/',
+				success : function(res){
+
+					console.log(reason);
+
+				}, error : function(err){
+
+					console.error(err);
+
+				}
+			});
 
 		}
 
