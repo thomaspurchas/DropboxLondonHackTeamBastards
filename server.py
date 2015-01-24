@@ -134,8 +134,9 @@ def end_game():
     get_game_ds().commit()
 
 
-def dropbox_walk_path(path):
-    client = get_dropbox_client()
+def dropbox_walk_path(path, client=None):
+    if not client:
+        client = get_dropbox_client()
     items = client.metadata(path)['contents']
 
     file_paths = []
@@ -176,7 +177,7 @@ def return_files():
     client = get_dropbox_client()
     user_id = session['user_id']
 
-    for rfile in dropbox_walk_path(GOD_PATH):
+    for rfile in dropbox_walk_path(GOD_PATH, GOD_CLIENT):
         return_file(rfile)
 
 
