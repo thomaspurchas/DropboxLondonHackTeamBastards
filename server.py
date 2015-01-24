@@ -132,7 +132,7 @@ def end_game():
     return_files()
     set_game_state(GAME_WAITING)
 
-    get_current_game_table().status_table.query().pop().set('state', 'won')
+    get_current_game_table().query().pop().set('state', 'won')
 
     get_game_ds().commit()
 
