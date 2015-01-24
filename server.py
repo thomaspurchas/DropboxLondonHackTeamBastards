@@ -237,6 +237,7 @@ def access_token():
     return session['access_token']
 
 
+
 @app.route('/datastore_id/')
 def datastore_id():
     return get_game_ds().get_id()
