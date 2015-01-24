@@ -25,7 +25,7 @@ GOD_DS = GOD_DS_MAN.open_default_datastore()
 GAME_RUNNING = 'running'
 GAME_WAITING = 'waiting'
 
-WINNER_PATH = 'apps/sacradash/winnings'
+WINNER_PATH = 'Apps/sacradash/winnings'
 
 
 def get_dropbox_client():
@@ -80,10 +80,10 @@ def get_team_table():
     return ds.get_table('team')
 
 
-def get_status_table():
+def get_current_game_table():
     ds = get_game_ds()
 
-    return ds.get_table('status')
+    return ds.get_table('current_game')
 
 
 def get_game_state():
@@ -117,7 +117,7 @@ def reset_game():
 def run_game():
     set_game_state(GAME_RUNNING)
 
-    status_table = get_status_table()
+    status_table = get_current_game_table()
 
     for record in status_table.query():
         record.delete_record()
@@ -129,19 +129,20 @@ def run_game():
 def end_game():
     set_game_state(GAME_WAITING)
 
-    get_status_table().status_table.query().pop().set('state', 'won')
+    get_current_game_table().status_table.query().pop().set('state', 'won')
 
     get_game_ds().commit()
 
 
-def dropbox_walk_path(path):
-    client = get_dropbox_client()
+def dropbox_walk_path(path, client=None):
+    if not client:
+        client = get_dropbox_client()
     items = client.metadata(path)['contents']
 
     file_paths = []
     for item in items:
         if item['is_dir']:
-            file_paths.extend(dropbox_walk_path(item['path']))
+            file_paths.extend(dropbox_walk_path(item['path'], client))
         else:
             file_paths.append(item['path'])
 
@@ -176,7 +177,7 @@ def return_files():
     client = get_dropbox_client()
     user_id = session['user_id']
 
-    for rfile in dropbox_walk_path(GOD_PATH):
+    for rfile in dropbox_walk_path(GOD_PATH, GOD_CLIENT):
         return_file(rfile)
 
 
