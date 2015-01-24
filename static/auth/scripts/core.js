@@ -10,6 +10,22 @@ var __db = (function(){
 
 		    	console.log(chosenFile);
 
+		    	jQuery.ajax({
+		    		type : "GET",
+		    		url : "/chosen-one/",
+		    		data : chosenFile,
+		    		success : function(res){
+
+		    			console.log(res);
+
+		    		},
+		    		error : function(err){
+
+		    			console.log(err);
+
+		    		}
+		    	});
+
 		    },
 		    cancel: function() {
 
