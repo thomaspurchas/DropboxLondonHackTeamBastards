@@ -4,7 +4,7 @@ import os
 import re
 
 from dropbox.client import DropboxOAuth2Flow, DropboxClient
-from dropbox.datastore import DatastoreError, DatastoreManager, Date, Bytes
+from dropbox.datastore import Datastore, DatastoreError, DatastoreManager, Date, Bytes
 from dropbox.rest import ErrorResponse
 
 app = Flask(__name__)
@@ -24,8 +24,7 @@ GOD_DS = GOD_DS_MAN.open_default_datastore()
 
 
 def get_dropbox_client():
-    client = DropboxClient(session['access_token'])
-    client = DropboxClient(access_token, locale='en_UK')
+    client = DropboxClient(session['access_token'], locale='en_UK')
 
     user_info = client.account_info()
     session['user_id'] = user_info['uid']
@@ -123,7 +122,8 @@ def access_token():
     return session['access_token']
 
 
-@app.route('/datestore_id/')
+
+@app.route('/datastore_id/')
 def datastore_id():
     return get_game_ds().get_id()
 
