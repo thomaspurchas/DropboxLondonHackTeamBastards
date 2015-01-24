@@ -21,16 +21,17 @@ var __db = (function(){
 
 		var coordinates = data.coords;
 
-		return;
+		// return;
 
 		jQuery.ajax({
 			type : "GET",
 			url : "/position/",
 			data : {
-				latitude : coords.latitude,
-				longitude : coords.longitude
-			}, success : function(){
+				lat : coordinates.latitude,
+				lon : coordinates.longitude
+			}, success : function(res){
 
+				console.log(res);
 				console.log("Position recognised");
 
 			}, error : function(err){
@@ -48,7 +49,7 @@ var __db = (function(){
 
 			console.log("You clicked!");
 
-			startGeo();
+			// startGeo();
 
 		}, false);
 
