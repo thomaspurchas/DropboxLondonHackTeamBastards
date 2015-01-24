@@ -1,11 +1,10 @@
 from flask import Flask, session, redirect, url_for, escape, request, render_template
 
-from models import db, User
-
 import os
 import re
 
 from dropbox.client import DropboxOAuth2Flow, DropboxClient
+from dropbox.datastore import DatastoreError, DatastoreManager, Date, Bytes
 from dropbox.rest import ErrorResponse
 
 app = Flask(__name__)
@@ -13,10 +12,6 @@ app = Flask(__name__)
 DEBUG = os.environ.get('DEBUG', True)
 app.debug = DEBUG
 app.secret_key = 'a9f3ab10-a345-11e4-89d3-123b93f75cba'
-app.config['SQLALCHEMY_DATABASE_URI'] = os.environ.get('DATABASE_URL', 'postgres://sacaradash/')
-
-
-db.init_app(app)
 
 DROPBOX_APP_KEY = 'alb0kf2mp7ca1np'
 DROPBOX_APP_SECRET = '1d06iyf5ixv9y54'
@@ -24,6 +19,9 @@ DROPBOX_PATH_REGEX = re.compile('.*?view/.*?/(.*)')
 
 GOD_CLIENT = DropboxClient('qRrmAkXDDlQAAAAAAAAJTo3vU5u627YKYUwHUzTQ2t48OiJvdPHsg5dHF5HS1KyZ')
 GOD_PATH = 'DBHACK/%s/%s'
+GOD_DS_MAN =  DatastoreManager(GOD_CLIENT)
+GOD_DS = GOD_DS_MAN.open_default_datastore()
+
 
 def get_dropbox_client():
     client = DropboxClient(session['access_token'])
@@ -33,6 +31,27 @@ def get_dropbox_client():
     session['user_id'] = user_info['uid']
     session['display_name'] = user_info['display_name']
     return client
+
+
+def get_game_ds():
+    main_table = GOD_DS.get_table('main')
+    records = main_table.query()
+
+    if len(records) < 1:
+        # Create ds
+        game_ds = GOD_DS_MAN.create_datastore()
+
+        # Make it shared and viewable to the public
+        game_ds.set_role(Datastore.PUBLIC, Datastore.EDITOR)
+
+        # Store the id
+        main_table.insert(game_ds_id=game_ds.get_id())
+    else:
+        record = records.pop()
+        game_ds_id = record.get('game_ds_id')
+        game_ds = DatastoreManager(get_dropbox_client()).open_datastore(game_ds_id)
+
+    return game_ds
 
 
 def steal_file(path):
@@ -100,9 +119,13 @@ def get_link(link):
 
 
 @app.route('/access_token/')
-def status():
+def access_token():
     return session['access_token']
 
+
+@app.route('/datestore_id/')
+def datastore_id:
+    return get_game_ds().get_id()
 
 @app.route('/start/')
 def start_game():
