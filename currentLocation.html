@@ -59,7 +59,8 @@ function handleNoGeolocation(errorFlag) {
   var options = {
     map: map,
     position: new google.maps.LatLng(60, 105),
-    content: content
+    content: content,
+    zoom : 15
   };
 
   var infowindow = new google.maps.InfoWindow(options);

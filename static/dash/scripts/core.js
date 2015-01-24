@@ -68,7 +68,16 @@ var __db = (function(){
 				url : '/datastore_id/',
 				success : function(res){
 
-					console.log(reason);
+					console.log(res);
+
+					var datastoreManager = client.getDatastoreManager();
+					
+					datastoreManager.openDatastore(res, function (error, datastore) {
+					    // The datastore is now shared with this user.
+
+					    console.log(datastore);
+
+					});
 
 				}, error : function(err){
 
