@@ -265,7 +265,7 @@ def set_user_position():
     team_table = get_team_table()
 
     records = team_table.query(user_id = session['user_id'])
-    if len(records) > 1:
+    if len(records) >= 1:
         for record in records:
             record.delete_record()
 
