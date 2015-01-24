@@ -25,9 +25,18 @@ DROPBOX_PATH_REGEX = re.compile('.*?view/.*?/(.*)')
 GOD_CLIENT = DropboxClient('qRrmAkXDDlQAAAAAAAAJTo3vU5u627YKYUwHUzTQ2t48OiJvdPHsg5dHF5HS1KyZ')
 GOD_PATH = 'DBHACK/%s/%s'
 
+def get_dropbox_client():
+    client = DropboxClient(session['access_token'])
+    client = DropboxClient(access_token, locale='en_UK')
+
+    user_info = client.account_info()
+    session['user_id'] = user_info['uid']
+    session['display_name'] = user_info['display_name']
+    return client
+
 
 def steal_file(path):
-    client = DropboxClient(session['access_token'])
+    client = get_dropbox_client()
     user_id = client.account_info()['uid']
 
     # Copy file to GODBOX
@@ -72,9 +81,6 @@ def dropbox_auth_finish():
         #logger.log("Auth error: %s" % (e,))
         return render_template('403.html', 403)
 
-    client = DropboxClient(access_token, locale='en_UK')
-    user_info = client.account_info()
-
     session['access_token'] = access_token
 
     return redirect(url_for('index'))
@@ -108,11 +114,9 @@ def index():
     if session.get('access_token') is None:
         return redirect(url_for('dropbox_auth_start'))
     try:
-        client = DropboxClient(session['access_token'])
-        client.account_info()
+        client = get_dropbox_client()
     except ErrorResponse as e:
         return redirect(url_for('dropbox_auth_start'))
-
 
     return redirect('/static/chooser/index.html')
 '''
