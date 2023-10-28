@@ -5,4 +5,4 @@ itsdangerous==0.24
 Jinja2==2.7.3
 MarkupSafe==0.23
 urllib3==1.10
-Werkzeug==0.9.6
+Werkzeug==3.0.1
